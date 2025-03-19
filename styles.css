@@ -76,3 +76,27 @@ tr:nth-child(even) {
     width: 100%;
     max-width: 300px;
 }
+
+#studentFilters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+#studentFilters select {
+    flex: 1;
+    min-width: 100px;
+    max-width: 150px;
+    padding: 8px;
+}
+
+@media (max-width: 600px) {
+    #studentFilters {
+        flex-direction: column;
+    }
+    
+    #studentFilters select {
+        max-width: 100%;
+    }
+}

@@ -88,24 +88,115 @@ function prepareStudentSelector(workbook, sheetName) {
     const worksheet = workbook.Sheets[sheetName];
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
     
-    // Get unique student names
-    const studentNames = [...new Set(jsonData.map(row => row.Name))];
+    // Get unique student names and parse their components
+    const students = [];
+    const years = new Set();
+    const classes = new Set();
+    const numbers = new Set();
     
-    // Populate student selector
-    const studentSelector = document.getElementById('studentSelector');
-    studentSelector.innerHTML = '<option value="">Select a student...</option>';
-    
-    studentNames.forEach(name => {
-        const option = document.createElement('option');
-        option.value = name;
-        option.textContent = name;
-        studentSelector.appendChild(option);
+    jsonData.forEach(row => {
+        if (students.some(s => s.fullName === row.Name)) return;
+        
+        // Parse student name components
+        // Format: "2324 6A 03 Chan Yuen Yan Yolanda"
+        const nameParts = row.Name.split(' ');
+        if (nameParts.length >= 4) {
+            const year = nameParts[0];
+            const className = nameParts[1];
+            const number = nameParts[2];
+            const actualName = nameParts.slice(3).join(' ');
+            
+            students.push({
+                fullName: row.Name,
+                year: year,
+                class: className,
+                number: number,
+                name: actualName
+            });
+            
+            years.add(year);
+            classes.add(className);
+            numbers.add(number);
+        } else {
+            // Handle unexpected format
+            students.push({
+                fullName: row.Name,
+                year: '',
+                class: '',
+                number: '',
+                name: row.Name
+            });
+        }
     });
     
-    // Show student selector
-    studentSelector.style.display = 'block';
+    // Sort and populate filter dropdowns
+    const yearFilter = document.getElementById('yearFilter');
+    const classFilter = document.getElementById('classFilter');
+    const numberFilter = document.getElementById('numberFilter');
+    
+    // Populate year filter
+    [...years].sort().forEach(year => {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        yearFilter.appendChild(option);
+    });
+    
+    // Populate class filter
+    [...classes].sort().forEach(cls => {
+        const option = document.createElement('option');
+        option.value = cls;
+        option.textContent = cls;
+        classFilter.appendChild(option);
+    });
+    
+    // Populate number filter
+    [...numbers].sort((a, b) => parseInt(a) - parseInt(b)).forEach(num => {
+        const option = document.createElement('option');
+        option.value = num;
+        option.textContent = num;
+        numberFilter.appendChild(option);
+    });
+    
+    // Show filters
+    document.getElementById('studentFilters').style.display = 'block';
+    document.getElementById('studentSelector').style.display = 'block';
+    
+    // Function to update student selector based on filters
+    function updateStudentSelector() {
+        const selectedYear = yearFilter.value;
+        const selectedClass = classFilter.value;
+        const selectedNumber = numberFilter.value;
+        
+        // Filter students based on selected filters
+        const filteredStudents = students.filter(student => {
+            return (!selectedYear || student.year === selectedYear) && 
+                   (!selectedClass || student.class === selectedClass) && 
+                   (!selectedNumber || student.number === selectedNumber);
+        });
+        
+        // Update student selector
+        const studentSelector = document.getElementById('studentSelector');
+        studentSelector.innerHTML = '<option value="">Select a student...</option>';
+        
+        filteredStudents.forEach(student => {
+            const option = document.createElement('option');
+            option.value = student.fullName;
+            option.textContent = student.fullName;
+            studentSelector.appendChild(option);
+        });
+    }
+    
+    // Initial population of student selector
+    updateStudentSelector();
+    
+    // Add event listeners for filters
+    yearFilter.addEventListener('change', updateStudentSelector);
+    classFilter.addEventListener('change', updateStudentSelector);
+    numberFilter.addEventListener('change', updateStudentSelector);
     
     // Add event listener for student selection
+    const studentSelector = document.getElementById('studentSelector');
     studentSelector.addEventListener('change', function() {
         if (this.value) {
             displayStudentChart(jsonData, this.value);
