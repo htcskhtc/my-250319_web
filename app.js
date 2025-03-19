@@ -273,6 +273,7 @@ function displayStudentChart(data, studentName) {
         <div style="height: 400px;">
             <canvas id="rankChart"></canvas>
         </div>
+        <div id="rankDiffTable" style="margin-top: 30px;"></div>
     `;
     
     // Replace the entire chart container content
@@ -450,4 +451,55 @@ function displayStudentChart(data, studentName) {
     document.getElementById('resetZoomBtn').addEventListener('click', function() {
         rankChart.resetZoom();
     });
+    
+    // Create RankDiff table
+    createRankDiffTable(studentData, subjects, assessments);
+}
+
+// Add new function to create the RankDiff table
+function createRankDiffTable(studentData, subjects, assessments) {
+    const tableContainer = document.getElementById('rankDiffTable');
+    
+    // Create table heading
+    let tableHTML = '<h3>Rank Difference by Subject and Assessment</h3>';
+    tableHTML += '<div style="overflow-x: auto;"><table class="rank-diff-table">';
+    
+    // Header row with subject names
+    tableHTML += '<tr><th>Assessment</th>';
+    subjects.forEach(subject => {
+        tableHTML += `<th>${subject}</th>`;
+    });
+    tableHTML += '</tr>';
+    
+    // Create rows for each assessment
+    assessments.forEach(assessment => {
+        tableHTML += `<tr><td>${assessment}</td>`;
+        
+        // For each subject, find the RankDiff value
+        subjects.forEach(subject => {
+            const dataPoint = studentData.find(row => 
+                row.Assessment === assessment && 
+                row.Subj === subject
+            );
+            
+            const rankDiff = dataPoint && dataPoint.RankDiff !== undefined ? dataPoint.RankDiff : '';
+            
+            // Add color coding based on rank difference value
+            let cellClass = '';
+            if (rankDiff !== '') {
+                if (rankDiff > 0) {
+                    cellClass = 'positive-change';
+                } else if (rankDiff < 0) {
+                    cellClass = 'negative-change';
+                }
+            }
+            
+            tableHTML += `<td class="${cellClass}">${rankDiff}</td>`;
+        });
+        
+        tableHTML += '</tr>';
+    });
+    
+    tableHTML += '</table></div>';
+    tableContainer.innerHTML = tableHTML;
 }
