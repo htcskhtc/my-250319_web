@@ -100,3 +100,32 @@ tr:nth-child(even) {
         max-width: 100%;
     }
 }
+
+.chart-controls {
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.chart-btn {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin-right: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.chart-btn:hover {
+    background-color: #45a049;
+}
+
+.checkbox-container {
+    margin-top: 10px;
+}
