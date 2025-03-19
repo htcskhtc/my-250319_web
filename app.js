@@ -48,11 +48,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
-            // Display the first sheet by default if available
-            if (workbook.SheetNames.length > 0) {
-                sheetSelector.value = workbook.SheetNames[0];
-                displaySheet(workbook, workbook.SheetNames[0]);
-            }
+            // Remove the automatic selection of the first sheet
+            // Leave the sheetSelector empty so the user must make a choice
         })
         .catch(error => {
             console.error('Error loading Excel file:', error);
