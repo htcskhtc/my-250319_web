@@ -301,10 +301,14 @@ function displayStudentChart(data, studentName) {
             scales: {
                 y: {
                     reverse: yAxisReversed,
-                    min: 0,  // Changed from 1 to 0
-                    max: 10,
+                    min: 0,
+                    max: 11,
                     ticks: {
-                        stepSize: 1
+                        stepSize: 1,
+                        callback: function(value) {
+                            // Only show values between 1-10 (skip 0 and 11)
+                            return value > 0 && value < 11 ? value : '';
+                        }
                     },
                     title: {
                         display: true,
