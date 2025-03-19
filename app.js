@@ -276,6 +276,7 @@ function displayStudentChart(data, studentName) {
     chartContainer.style.display = 'block';
     
     // Add chart controls before the chart
+    // FIXED: Properly structure the HTML with clear separation between chart sections
     let controlsHTML = `
         <div class="chart-controls" style="margin-bottom: 15px;">
             <select id="assessmentSelector" style="padding: 8px; margin-left: 10px; min-width: 150px;">
@@ -287,11 +288,20 @@ function displayStudentChart(data, studentName) {
                 <div id="subjectToggles" style="display: inline-flex; flex-wrap: wrap; gap: 10px;"></div>
             </div>
         </div>
-        <div id="subjectRankBarChart" style="height: 300px; display: none; margin-bottom: 20px;">
+        
+        <!-- FIXED: Bar chart container with complete structure including controls -->
+        <div id="subjectRankBarChart" style="height: 400px; display: none; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
             <h4 style="text-align: center; margin-top: 0;">Subject Performance for Selected Assessment</h4>
-            <canvas id="barChart"></canvas>
+            <div style="height: 300px;">
+                <canvas id="barChart"></canvas>
+            </div>
+            <div id="barChartControls" style="margin-top: 15px;">
+                <!-- Controls will be added here by JS -->
+            </div>
         </div>
-        <div style="height: 400px;">
+        
+        <!-- FIXED: Clear separation with the rank progression chart -->
+        <div style="height: 400px; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
             <h4 style="text-align: center; margin-top: 0;">Static Rank Progression Chart</h4>
             <canvas id="rankChart"></canvas>
         </div>
@@ -300,14 +310,6 @@ function displayStudentChart(data, studentName) {
     
     // Replace the entire chart container content
     chartContainer.innerHTML = controlsHTML;
-    
-    // Add debugging code
-    console.log("Chart container elements:", {
-        container: document.getElementById('chartContainer'),
-        barChartContainer: document.getElementById('subjectRankBarChart'),
-        barCanvas: document.getElementById('barChart'),
-        rankCanvas: document.getElementById('rankChart')
-    });
     
     const ctx = document.getElementById('rankChart').getContext('2d');
     
@@ -740,6 +742,17 @@ function initializeAssessmentBarChart(studentData, groupedData, subjects) {
             barChart.destroy();
         }
         
+        // FIXED: Ensure chart structure is preserved and controls container exists
+        if (!document.getElementById('barChart')) {
+            barChartContainer.innerHTML = `
+                <h4 style="text-align: center; margin-top: 0;">Subject Performance for Selected Assessment</h4>
+                <div style="height: 300px;">
+                    <canvas id="barChart"></canvas>
+                </div>
+                <div id="barChartControls" style="margin-top: 15px;"></div>
+            `;
+        }
+        
         // Make sure we have a canvas element
         const barChartCanvas = document.getElementById('barChart');
         if (!barChartCanvas) {
@@ -803,12 +816,16 @@ function initializeAssessmentBarChart(studentData, groupedData, subjects) {
             
             console.log("Bar chart created successfully");
             
+            // FIXED: Place controls in the dedicated container
+            const controlsContainer = document.getElementById('barChartControls');
+            controlsContainer.innerHTML = ''; // Clear previous controls
+            
             // Add rank labels on top of bars
             const rankLabels = document.createElement('div');
             rankLabels.style.textAlign = 'center';
-            rankLabels.style.marginTop = '10px';
             rankLabels.innerHTML = '<p><strong>Ranks:</strong> ' + 
                 subjectRanks.map(item => `${item.subject}: ${item.rank}`).join(' | ') + '</p>';
+            controlsContainer.appendChild(rankLabels);
             
             // Add sorting buttons
             const sortingControls = document.createElement('div');
@@ -818,14 +835,7 @@ function initializeAssessmentBarChart(studentData, groupedData, subjects) {
                 <button id="sortByRankBtn" class="chart-btn" style="margin-right: 10px;">Sort by Rank</button>
                 <button id="sortBySubjectBtn" class="chart-btn">Sort by Subject</button>
             `;
-            
-            // Clear previous controls
-            const existingControls = barChartContainer.querySelectorAll('div:not(:first-child)');
-            existingControls.forEach(control => control.remove());
-            
-            // Add controls after the chart
-            barChartCanvas.after(rankLabels);
-            rankLabels.after(sortingControls);
+            controlsContainer.appendChild(sortingControls);
             
             // Add event listeners for sorting buttons
             document.getElementById('sortByRankBtn').addEventListener('click', function() {
@@ -869,11 +879,18 @@ function initializeAssessmentBarChart(studentData, groupedData, subjects) {
     });
     
     // Display initial instructions
-    barChartContainer.innerHTML = `
-        <h4 style="text-align: center; margin-top: 0;">Subject Performance for Selected Assessment</h4>
-        <canvas id="barChart"></canvas>
-        <p style="text-align: center; color: #666; margin-top: 10px;">
-            Select an assessment from the dropdown above to see the student's performance across subjects.
-        </p>
-    `;
+    const chartContent = barChartContainer.querySelector('div:not(h4)');
+    if (!chartContent) {
+        barChartContainer.innerHTML = `
+            <h4 style="text-align: center; margin-top: 0;">Subject Performance for Selected Assessment</h4>
+            <div style="height: 300px;">
+                <canvas id="barChart"></canvas>
+            </div>
+            <div id="barChartControls" style="margin-top: 15px;">
+                <p style="text-align: center; color: #666;">
+                    Select an assessment from the dropdown above to see the student's performance across subjects.
+                </p>
+            </div>
+        `;
+    }
 }
