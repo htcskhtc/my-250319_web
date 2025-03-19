@@ -264,10 +264,18 @@ function displayStudentChart(data, studentName) {
     let controlsHTML = `
         <div class="chart-controls" style="margin-bottom: 15px;">
             <button id="resetZoomBtn" class="chart-btn">Reset Zoom</button>
+            <select id="assessmentSelector" style="padding: 8px; margin-left: 10px; min-width: 150px;">
+                <option value="">Select Assessment...</option>
+                ${assessments.map(a => `<option value="${a}">${a}</option>`).join('')}
+            </select>
             <div class="checkbox-container" style="margin-top: 10px;">
                 <span>Show/Hide Subjects: </span>
                 <div id="subjectToggles" style="display: inline-flex; flex-wrap: wrap; gap: 10px;"></div>
             </div>
+        </div>
+        <div id="subjectRankBarChart" style="height: 300px; display: none; margin-bottom: 20px;">
+            <h4 style="text-align: center; margin-top: 0;">Subject Performance for Selected Assessment</h4>
+            <canvas id="barChart"></canvas>
         </div>
         <div style="height: 400px;">
             <canvas id="rankChart"></canvas>
@@ -444,6 +452,9 @@ function displayStudentChart(data, studentName) {
     
     // Create RankDiff table
     createRankDiffTable(studentData, subjects, assessments);
+    
+    // Initialize the Assessment Bar Chart functionality
+    initializeAssessmentBarChart(studentData, groupedData, subjects);
 }
 
 // Add new function to create the RankDiff table
@@ -711,4 +722,210 @@ function createRankDiffTable(studentData, subjects, assessments) {
     
     tableHTML += '</table></div>';
     tableContainer.innerHTML = tableHTML;
+}
+
+// Add new function to create and manage the assessment bar chart
+function initializeAssessmentBarChart(studentData, groupedData, subjects) {
+    let barChart = null;
+    const assessmentSelector = document.getElementById('assessmentSelector');
+    const barChartContainer = document.getElementById('subjectRankBarChart');
+    
+    // Add event listener for assessment selection
+    assessmentSelector.addEventListener('change', function() {
+        const selectedAssessment = this.value;
+        
+        if (!selectedAssessment) {
+            barChartContainer.style.display = 'none';
+            return;
+        }
+        
+        // Display the bar chart container
+        barChartContainer.style.display = 'block';
+        
+        // Get the ranks for the selected assessment
+        const assessmentData = groupedData[selectedAssessment];
+        if (!assessmentData) {
+            barChartContainer.innerHTML = '<p>No data available for this assessment</p>';
+            return;
+        }
+        
+        // Prepare data for the bar chart
+        const subjectRanks = subjects.map(subject => {
+            return {
+                subject: subject,
+                rank: assessmentData[subject] || null
+            };
+        }).filter(item => item.rank !== null);
+        
+        // Sort by rank (ascending)
+        subjectRanks.sort((a, b) => a.rank - b.rank);
+        
+        // Generate colors - best (lowest rank) is green, worst is red
+        const colors = subjectRanks.map((item, index, array) => {
+            if (index === 0) return 'rgba(75, 192, 75, 0.8)'; // Best - green
+            if (index === array.length - 1) return 'rgba(255, 99, 71, 0.8)'; // Worst - red
+            return 'rgba(54, 162, 235, 0.7)'; // Mid - blue
+        });
+        
+        const borderColors = colors.map(color => color.replace('0.7', '1').replace('0.8', '1'));
+        
+        // Destroy existing chart if it exists
+        if (barChart) {
+            barChart.destroy();
+        }
+        
+        // Create the bar chart
+        const ctx = document.getElementById('barChart').getContext('2d');
+        barChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: subjectRanks.map(item => item.subject),
+                datasets: [{
+                    label: 'Rank',
+                    data: subjectRanks.map(item => item.rank),
+                    backgroundColor: colors,
+                    borderColor: borderColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        reverse: false, // Lower is better, so we want lower ranks to be taller bars
+                        max: 11,
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                return value === 0 ? '' : value;
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Rank (lower is better)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Subject'
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const pointIndex = context.dataIndex;
+                                const subject = subjectRanks[pointIndex].subject;
+                                const rank = subjectRanks[pointIndex].rank;
+                                
+                                // Get score if available
+                                const pointData = studentData.find(row => 
+                                    row.Assessment === assessmentSelector.value && 
+                                    row.Subj === subject
+                                );
+                                
+                                let label = `${subject}: Rank ${rank}`;
+                                if (pointData && pointData.Score) {
+                                    label += ` (Score: ${pointData.Score})`;
+                                }
+                                
+                                // Add a note if this is the best or worst subject
+                                if (pointIndex === 0) {
+                                    label += ' - Best Subject';
+                                } else if (pointIndex === subjectRanks.length - 1) {
+                                    label += ' - Needs Improvement';
+                                }
+                                
+                                return label;
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: `Subject Performance for ${assessmentSelector.value}`,
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        display: false
+                    },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        formatter: function(value) {
+                            return value;
+                        },
+                        font: {
+                            weight: 'bold'
+                        }
+                    },
+                    annotation: {
+                        annotations: [{
+                            type: 'line',
+                            mode: 'horizontal',
+                            scaleID: 'y',
+                            value: 3.5,
+                            borderColor: 'rgba(0, 200, 0, 0.3)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            label: {
+                                enabled: true,
+                                content: 'Good Performance',
+                                position: 'start'
+                            }
+                        }]
+                    }
+                }
+            }
+        });
+        
+        // Add sorting option
+        const sortingControls = document.createElement('div');
+        sortingControls.style.textAlign = 'center';
+        sortingControls.style.marginTop = '10px';
+        sortingControls.innerHTML = `
+            <button id="sortByRankBtn" class="chart-btn" style="margin-right: 10px;">Sort by Rank</button>
+            <button id="sortBySubjectBtn" class="chart-btn">Sort by Subject</button>
+        `;
+        
+        // Add after the chart
+        document.getElementById('barChart').after(sortingControls);
+        
+        // Add event listeners for sorting buttons
+        document.getElementById('sortByRankBtn').addEventListener('click', function() {
+            subjectRanks.sort((a, b) => a.rank - b.rank);
+            updateBarChart();
+        });
+        
+        document.getElementById('sortBySubjectBtn').addEventListener('click', function() {
+            subjectRanks.sort((a, b) => a.subject.localeCompare(b.subject));
+            updateBarChart();
+        });
+        
+        function updateBarChart() {
+            barChart.data.labels = subjectRanks.map(item => item.subject);
+            barChart.data.datasets[0].data = subjectRanks.map(item => item.rank);
+            
+            // Update colors based on new sorting
+            const newColors = subjectRanks.map((item, index, array) => {
+                if (index === 0 && array[0].rank === Math.min(...array.map(i => i.rank))) {
+                    return 'rgba(75, 192, 75, 0.8)'; // Best - green
+                }
+                if (index === array.length - 1 && array[array.length - 1].rank === Math.max(...array.map(i => i.rank))) {
+                    return 'rgba(255, 99, 71, 0.8)'; // Worst - red
+                }
+                return 'rgba(54, 162, 235, 0.7)'; // Mid - blue
+            });
+            
+            barChart.data.datasets[0].backgroundColor = newColors;
+            barChart.data.datasets[0].borderColor = newColors.map(color => color.replace('0.7', '1').replace('0.8', '1'));
+            
+            barChart.update();
+        }
+    });
 }
