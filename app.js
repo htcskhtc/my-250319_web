@@ -93,8 +93,10 @@ function displaySheet(workbook, sheetName) {
 
 // Add these new functions
 function prepareStudentSelector(workbook, sheetName) {
+    console.log("prepareStudentSelector called", sheetName);
     const worksheet = workbook.Sheets[sheetName];
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    console.log("Data loaded:", jsonData.length, "rows");
     
     // Get unique student names and parse their components
     const students = [];
@@ -139,7 +141,7 @@ function prepareStudentSelector(workbook, sheetName) {
     
     // Sort and populate filter dropdowns
     const yearFilter = document.getElementById('yearFilter');
-    const classFilter = document.getElementId('classFilter');
+    const classFilter = document.getElementById('classFilter');
     const numberFilter = document.getElementById('numberFilter');
     
     // Populate year filter
@@ -215,8 +217,10 @@ function prepareStudentSelector(workbook, sheetName) {
 }
 
 function displayStudentChart(data, studentName) {
+    console.log("displayStudentChart called", studentName);
     // Filter data for selected student
     const studentData = data.filter(row => row.Name === studentName);
+    console.log("Student data:", studentData.length, "rows");
     
     // Get unique assessments and subjects, and sort assessments
     const assessments = [...new Set(studentData.map(row => row.Assessment))].sort();
