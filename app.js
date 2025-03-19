@@ -182,6 +182,9 @@ function prepareStudentSelector(workbook, sheetName) {
                    (!selectedNumber || student.number === selectedNumber);
         });
         
+        // Sort students by their full name in ascending order
+        filteredStudents.sort((a, b) => a.fullName.localeCompare(b.fullName));
+        
         // Update student selector
         const studentSelector = document.getElementById('studentSelector');
         studentSelector.innerHTML = '<option value="">Select a student...</option>';
