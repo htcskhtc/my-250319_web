@@ -24,14 +24,22 @@ document.addEventListener('DOMContentLoaded', function() {
             // Event listener for sheet selection
             sheetSelector.addEventListener('change', function() {
                 if (this.value) {
-                    displaySheet(workbook, this.value);
+                    // Only display the sheet if it's not "InternalExam"
+                    if (this.value !== "InternalExam") {
+                        displaySheet(workbook, this.value);
+                    } else {
+                        // Hide the table container for "InternalExam" sheet
+                        document.getElementById('tableContainer').innerHTML = '';
+                    }
                     
                     // If "InternalExam" sheet is selected, prepare for chart visualization
                     if (this.value === "InternalExam") {
                         prepareStudentSelector(workbook, this.value);
+                        document.getElementById('tableContainer').style.display = 'none';
                     } else {
                         document.getElementById('studentSelector').style.display = 'none';
                         document.getElementById('chartContainer').style.display = 'none';
+                        document.getElementById('tableContainer').style.display = 'block';
                     }
                 } else {
                     document.getElementById('tableContainer').innerHTML = '';
