@@ -283,7 +283,7 @@ function displayStudentChart(data, studentName) {
                 ${assessments.map(a => `<option value="${a}">${a}</option>`).join('')}
             </select>
             <div class="checkbox-container" style="margin-top: 10px;">
-                <span>Show/Hide Subjects: </span>
+                <span>Subject Legend: </span>
                 <div id="subjectToggles" style="display: inline-flex; flex-wrap: wrap; gap: 10px;"></div>
             </div>
         </div>
@@ -292,6 +292,7 @@ function displayStudentChart(data, studentName) {
             <canvas id="barChart"></canvas>
         </div>
         <div style="height: 400px;">
+            <h4 style="text-align: center; margin-top: 0;">Static Rank Progression Chart</h4>
             <canvas id="rankChart"></canvas>
         </div>
         <div id="rankDiffTable" style="margin-top: 30px;"></div>
@@ -330,7 +331,7 @@ function displayStudentChart(data, studentName) {
             maintainAspectRatio: false,
             scales: {
                 y: {
-                    reverse: yAxisReversed,
+                    reverse: false,
                     min: 0,
                     max: 11,
                     beginAtZero: false,
@@ -353,101 +354,41 @@ function displayStudentChart(data, studentName) {
                 }
             },
             plugins: {
-                zoom: {
-                    pan: {
-                        enabled: true,
-                        mode: 'xy',
-                    },
-                    zoom: {
-                        wheel: {
-                            enabled: true,
-                        },
-                        pinch: {
-                            enabled: true
-                        },
-                        mode: 'xy',
-                    }
-                },
                 title: {
                     display: true,
                     text: `Rank Progression for ${studentName}`
                 },
                 tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const pointData = studentData.find(row => 
-                                row.Assessment === assessments[context.dataIndex] && 
-                                row.Subj === context.dataset.label
-                            );
-                            
-                            let label = `${context.dataset.label}: Rank ${context.raw}`;
-                            if (pointData && pointData.Score) {
-                                label += ` (Score: ${pointData.Score})`;
-                            }
-                            return label;
-                        }
-                    },
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    padding: 10,
-                    cornerRadius: 6,
+                    enabled: false // Disable tooltips
                 },
                 legend: {
                     title: {
                         display: true,
                         text: 'Subject'
-                    },
-                    onClick: function(e, legendItem, legend) {
-                        const index = legendItem.datasetIndex;
-                        const ci = legend.chart;
-                        
-                        // Toggle visibility
-                        const meta = ci.getDatasetMeta(index);
-                        meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
-                        
-                        // Update checkbox state
-                        const checkbox = document.getElementById(`subject-${index}`);
-                        if (checkbox) checkbox.checked = !meta.hidden;
-                        
-                        ci.update();
                     }
+                },
+                zoom: {
+                    enabled: false // Disable zoom plugin
                 }
             },
             interaction: {
-                mode: 'nearest',
-                axis: 'x',
-                intersect: false
+                mode: 'none' // Disable all interactions
             },
-            onClick: function(e, elements) {
-                if (elements.length > 0) {
-                    const element = elements[0];
-                    const assessment = assessments[element.index];
-                    const subject = datasets[element.datasetIndex].label;
-                    const rank = datasets[element.datasetIndex].data[element.index];
-                    
-                    alert(`Assessment: ${assessment}\nSubject: ${subject}\nRank: ${rank}`);
-                }
-            }
+            events: [] // Disable all event listeners (hover, clicks)
         }
     });
     
-    // Add subject toggle checkboxes
+    // Display information about subjects instead of toggle checkboxes
     const subjectToggles = document.getElementById('subjectToggles');
     datasets.forEach((dataset, i) => {
         const hue = (i * 137) % 360;
         const color = `hsla(${hue}, 70%, 50%, 0.7)`;
         
-        const label = document.createElement('label');
+        const label = document.createElement('div');
         label.style.display = 'inline-flex';
         label.style.alignItems = 'center';
         label.style.marginRight = '10px';
-        
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = true;
-        checkbox.id = `subject-${i}`;
-        checkbox.style.marginRight = '5px';
-        
-        const text = document.createTextNode(dataset.label);
+        label.style.marginBottom = '5px';
         
         const colorIndicator = document.createElement('span');
         colorIndicator.style.display = 'inline-block';
@@ -456,12 +397,8 @@ function displayStudentChart(data, studentName) {
         colorIndicator.style.backgroundColor = color;
         colorIndicator.style.marginRight = '5px';
         
-        checkbox.addEventListener('change', () => {
-            rankChart.setDatasetVisibility(i, checkbox.checked);
-            rankChart.update();
-        });
+        const text = document.createTextNode(dataset.label);
         
-        label.appendChild(checkbox);
         label.appendChild(colorIndicator);
         label.appendChild(text);
         subjectToggles.appendChild(label);
