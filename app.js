@@ -278,7 +278,6 @@ function displayStudentChart(data, studentName) {
     // Add chart controls before the chart
     let controlsHTML = `
         <div class="chart-controls" style="margin-bottom: 15px;">
-            <button id="resetZoomBtn" class="chart-btn">Reset Zoom</button>
             <select id="assessmentSelector" style="padding: 8px; margin-left: 10px; min-width: 150px;">
                 <option value="">Select Assessment...</option>
                 ${assessments.map(a => `<option value="${a}">${a}</option>`).join('')}
@@ -466,11 +465,6 @@ function displayStudentChart(data, studentName) {
         label.appendChild(colorIndicator);
         label.appendChild(text);
         subjectToggles.appendChild(label);
-    });
-    
-    // Add reset zoom button functionality
-    document.getElementById('resetZoomBtn').addEventListener('click', function() {
-        rankChart.resetZoom();
     });
     
     // Create RankDiff table
