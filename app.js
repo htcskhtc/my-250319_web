@@ -460,8 +460,192 @@ function displayStudentChart(data, studentName) {
 function createRankDiffTable(studentData, subjects, assessments) {
     const tableContainer = document.getElementById('rankDiffTable');
     
+    // Add CSS for the table styling
+    const cssStyle = `
+        <style>
+            .rank-diff-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            }
+            
+            .rank-diff-table th, .rank-diff-table td {
+                padding: 10px;
+                text-align: center;
+                border: 1px solid #e0e0e0;
+            }
+            
+            .rank-diff-table th {
+                background-color: #f5f5f5;
+                font-weight: bold;
+                position: sticky;
+                top: 0;
+            }
+            
+            .rank-diff-table th:first-child {
+                text-align: left;
+            }
+            
+            .rank-diff-table td:first-child {
+                text-align: left;
+                font-weight: bold;
+                background-color: #f9f9f9;
+            }
+            
+            /* Color gradient for positive changes */
+            .positive-change-1 { background-color: rgba(220, 255, 220, 0.6); color: #006400; }
+            .positive-change-2 { background-color: rgba(180, 255, 180, 0.7); color: #006400; }
+            .positive-change-3 { background-color: rgba(140, 255, 140, 0.8); color: #006400; }
+            .positive-change-4 { background-color: rgba(100, 255, 100, 0.9); color: #006400; }
+            .positive-change-5 { background-color: rgba(50, 200, 50, 1.0); color: white; }
+            
+            /* Color gradient for negative changes */
+            .negative-change-1 { background-color: rgba(255, 220, 220, 0.6); color: #8b0000; }
+            .negative-change-2 { background-color: rgba(255, 180, 180, 0.7); color: #8b0000; }
+            .negative-change-3 { background-color: rgba(255, 140, 140, 0.8); color: #8b0000; }
+            .negative-change-4 { background-color: rgba(255, 100, 100, 0.9); color: #8b0000; }
+            .negative-change-5 { background-color: rgba(200, 50, 50, 1.0); color: white; }
+            
+            .no-change { background-color: #f0f0f0; color: #555; }
+            
+            .rank-diff-table td:not(:first-child) {
+                font-weight: bold;
+                min-width: 60px;
+            }
+            
+            .legend-container {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 15px;
+                flex-wrap: wrap;
+            }
+            
+            .legend-item {
+                display: flex;
+                align-items: center;
+                margin-right: 15px;
+                margin-bottom: 5px;
+            }
+            
+            .legend-color {
+                width: 20px;
+                height: 20px;
+                margin-right: 5px;
+                border: 1px solid #ddd;
+            }
+            
+            .summary-stats {
+                margin-bottom: 15px;
+                padding: 10px;
+                background-color: #f9f9f9;
+                border-radius: 4px;
+                border-left: 4px solid #4CAF50;
+            }
+            
+            .highlight {
+                font-weight: bold;
+            }
+            
+            .assessment-group {
+                border-bottom: 2px solid #aaa;
+            }
+            
+            .assessment-group:last-child {
+                border-bottom: none;
+            }
+        </style>
+    `;
+    
     // Create table heading
     let tableHTML = '<h3>Rank Difference by Subject and Assessment</h3>';
+    
+    // Add color legend
+    tableHTML += `
+        <div class="legend-container">
+            <div class="legend-item">
+                <div class="legend-color positive-change-5"></div>
+                <span>Large Improvement (+5)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color positive-change-3"></div>
+                <span>Medium Improvement (+3)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color positive-change-1"></div>
+                <span>Small Improvement (+1)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color no-change"></div>
+                <span>No Change (0)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color negative-change-1"></div>
+                <span>Small Decline (-1)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color negative-change-3"></div>
+                <span>Medium Decline (-3)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color negative-change-5"></div>
+                <span>Large Decline (-5)</span>
+            </div>
+        </div>
+    `;
+    
+    // Add summary statistics
+    let totalImprovements = 0;
+    let totalDeclines = 0;
+    let bestSubject = '';
+    let bestImprovement = 0;
+    let worstSubject = '';
+    let worstDecline = 0;
+    
+    // Calculate summary statistics
+    subjects.forEach(subject => {
+        let subjectImprovements = 0;
+        let subjectDeclines = 0;
+        
+        assessments.forEach(assessment => {
+            const dataPoint = studentData.find(row => 
+                row.Assessment === assessment && 
+                row.Subj === subject
+            );
+            
+            if (dataPoint && dataPoint.RankDiff) {
+                if (dataPoint.RankDiff > 0) {
+                    subjectImprovements += dataPoint.RankDiff;
+                } else if (dataPoint.RankDiff < 0) {
+                    subjectDeclines += dataPoint.RankDiff;
+                }
+            }
+        });
+        
+        totalImprovements += subjectImprovements;
+        totalDeclines += subjectDeclines;
+        
+        if (subjectImprovements > bestImprovement) {
+            bestImprovement = subjectImprovements;
+            bestSubject = subject;
+        }
+        
+        if (subjectDeclines < worstDecline) {
+            worstDecline = subjectDeclines;
+            worstSubject = subject;
+        }
+    });
+    
+    tableHTML += `
+        <div class="summary-stats">
+            <p>Total improvements: <span class="highlight">+${totalImprovements}</span> | 
+               Total declines: <span class="highlight">${totalDeclines}</span></p>
+            <p>Best performing subject: <span class="highlight">${bestSubject}</span> (Total improvement: +${bestImprovement})</p>
+            <p>Most challenging subject: <span class="highlight">${worstSubject}</span> (Total change: ${worstDecline})</p>
+        </div>
+    `;
+    
+    tableHTML += cssStyle;
     tableHTML += '<div style="overflow-x: auto;"><table class="rank-diff-table">';
     
     // Header row with subject names
@@ -472,8 +656,20 @@ function createRankDiffTable(studentData, subjects, assessments) {
     tableHTML += '</tr>';
     
     // Create rows for each assessment
-    assessments.forEach(assessment => {
-        tableHTML += `<tr><td>${assessment}</td>`;
+    let currentYear = '';
+    assessments.forEach((assessment, index) => {
+        // Extract year/term from assessment name if possible
+        const assessmentParts = assessment.split(' ');
+        const assessmentYear = assessmentParts[0] || '';
+        
+        // Add a visual separator between different years/terms
+        let rowClass = '';
+        if (assessmentYear !== currentYear) {
+            currentYear = assessmentYear;
+            rowClass = ' class="assessment-group"';
+        }
+        
+        tableHTML += `<tr${rowClass}><td>${assessment}</td>`;
         
         // For each subject, find the RankDiff value
         subjects.forEach(subject => {
@@ -484,17 +680,40 @@ function createRankDiffTable(studentData, subjects, assessments) {
             
             const rankDiff = dataPoint && dataPoint.RankDiff !== undefined ? dataPoint.RankDiff : '';
             
-            // Add color coding based on rank difference value
+            // Add color coding based on rank difference value and intensity
             let cellClass = '';
             if (rankDiff !== '') {
                 if (rankDiff > 0) {
-                    cellClass = 'positive-change';
+                    // Positive changes (improvements)
+                    if (rankDiff >= 5) {
+                        cellClass = 'positive-change-5';
+                    } else if (rankDiff >= 3) {
+                        cellClass = 'positive-change-4';
+                    } else if (rankDiff >= 2) {
+                        cellClass = 'positive-change-3';
+                    } else if (rankDiff >= 1) {
+                        cellClass = 'positive-change-1';
+                    }
                 } else if (rankDiff < 0) {
-                    cellClass = 'negative-change';
+                    // Negative changes (declines)
+                    if (rankDiff <= -5) {
+                        cellClass = 'negative-change-5';
+                    } else if (rankDiff <= -3) {
+                        cellClass = 'negative-change-4';
+                    } else if (rankDiff <= -2) {
+                        cellClass = 'negative-change-3';
+                    } else if (rankDiff <= -1) {
+                        cellClass = 'negative-change-1';
+                    }
+                } else {
+                    cellClass = 'no-change';
                 }
             }
             
-            tableHTML += `<td class="${cellClass}">${rankDiff}</td>`;
+            // Add + sign prefix for positive values
+            const displayValue = rankDiff > 0 ? `+${rankDiff}` : rankDiff;
+            
+            tableHTML += `<td class="${cellClass}">${displayValue}</td>`;
         });
         
         tableHTML += '</tr>';
