@@ -303,11 +303,11 @@ function displayStudentChart(data, studentName) {
                     reverse: yAxisReversed,
                     min: 0,
                     max: 11,
+                    beginAtZero: false,
                     ticks: {
                         stepSize: 1,
-                        callback: function(value) {
-                            // Only show values between 1-10 (skip 0 and 11)
-                            return value > 0 && value < 11 ? value : '';
+                        callback: function(value, index, ticks) {
+                            return (value === 0 || value === 11) ? '' : value;
                         }
                     },
                     title: {
