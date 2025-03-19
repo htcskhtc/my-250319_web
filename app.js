@@ -266,11 +266,13 @@ function displayStudentChart(data, studentName) {
                 <div id="subjectToggles" style="display: inline-flex; flex-wrap: wrap; gap: 10px;"></div>
             </div>
         </div>
+        <div style="height: 400px;">
+            <canvas id="rankChart"></canvas>
+        </div>
     `;
     
-    // Insert controls before the chart canvas
-    const canvasContainer = document.getElementById('chartContainer');
-    canvasContainer.innerHTML = controlsHTML + '<canvas id="rankChart"></canvas>';
+    // Replace the entire chart container content
+    chartContainer.innerHTML = controlsHTML;
     
     const ctx = document.getElementById('rankChart').getContext('2d');
     

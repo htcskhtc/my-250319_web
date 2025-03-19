@@ -67,7 +67,7 @@ tr:nth-child(even) {
     background-color: white;
     border-radius: 4px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    height: 400px;
+    /* Remove the height: 400px; line */
 }
 
 #studentSelector {
