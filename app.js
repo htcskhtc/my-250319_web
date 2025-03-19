@@ -139,7 +139,7 @@ function prepareStudentSelector(workbook, sheetName) {
     
     // Sort and populate filter dropdowns
     const yearFilter = document.getElementById('yearFilter');
-    const classFilter = document.getElementById('classFilter');
+    const classFilter = document.getElementId('classFilter');
     const numberFilter = document.getElementById('numberFilter');
     
     // Populate year filter
@@ -295,7 +295,7 @@ function displayStudentChart(data, studentName) {
             scales: {
                 y: {
                     reverse: yAxisReversed,
-                    min: 1,
+                    min: 0,  // Changed from 1 to 0
                     max: 10,
                     ticks: {
                         stepSize: 1
