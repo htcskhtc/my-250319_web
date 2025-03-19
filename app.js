@@ -261,6 +261,11 @@ function displayStudentChart(data, studentName) {
             scales: {
                 y: {
                     reverse: false,
+                    min: 1,      // Set minimum value to 1
+                    max: 10,     // Set maximum value to 10
+                    ticks: {
+                        stepSize: 1  // Ensure whole number ticks
+                    },
                     title: {
                         display: true,
                         text: 'Rank (higher is better)'
