@@ -263,7 +263,6 @@ function displayStudentChart(data, studentName) {
     // Add chart controls before the chart
     let controlsHTML = `
         <div class="chart-controls" style="margin-bottom: 15px;">
-            <button id="toggleYAxisBtn" class="chart-btn">Toggle Y-Axis</button>
             <button id="resetZoomBtn" class="chart-btn">Reset Zoom</button>
             <div class="checkbox-container" style="margin-top: 10px;">
                 <span>Show/Hide Subjects: </span>
@@ -436,15 +435,6 @@ function displayStudentChart(data, studentName) {
         label.appendChild(colorIndicator);
         label.appendChild(text);
         subjectToggles.appendChild(label);
-    });
-    
-    // Add toggle Y-axis button functionality
-    document.getElementById('toggleYAxisBtn').addEventListener('click', function() {
-        yAxisReversed = !yAxisReversed;
-        rankChart.options.scales.y.reverse = yAxisReversed;
-        rankChart.options.scales.y.title.text = yAxisReversed ? 
-            'Rank (higher number is better)' : 'Rank (lower number is better)';
-        rankChart.update();
     });
     
     // Add reset zoom button functionality
