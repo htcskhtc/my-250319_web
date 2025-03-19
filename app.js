@@ -168,10 +168,10 @@ function displayStudentChart(data, studentName) {
         options: {
             scales: {
                 y: {
-                    reverse: true, // Higher rank is actually a lower number
+                    reverse: false, // Change to false or remove this line
                     title: {
                         display: true,
-                        text: 'Rank (lower is better)'
+                        text: 'Rank (higher is better)' // Update this text
                     }
                 },
                 x: {
