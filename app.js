@@ -210,8 +210,8 @@ function displayStudentChart(data, studentName) {
     // Filter data for selected student
     const studentData = data.filter(row => row.Name === studentName);
     
-    // Get unique assessments and subjects
-    const assessments = [...new Set(studentData.map(row => row.Assessment))];
+    // Get unique assessments and subjects, and sort assessments
+    const assessments = [...new Set(studentData.map(row => row.Assessment))].sort();
     const subjects = [...new Set(studentData.map(row => row.Subj))];
     
     // Group by subject and assessment, but reversed from before
