@@ -119,28 +119,29 @@ function displayStudentChart(data, studentName) {
     // Filter data for selected student
     const studentData = data.filter(row => row.Name === studentName);
     
-    // Group by subject and assessment
+    // Get unique assessments and subjects
+    const assessments = [...new Set(studentData.map(row => row.Assessment))];
+    const subjects = [...new Set(studentData.map(row => row.Subj))];
+    
+    // Group by subject and assessment, but reversed from before
     const groupedData = {};
     
     studentData.forEach(row => {
-        if (!groupedData[row.Subj]) {
-            groupedData[row.Subj] = {};
+        if (!groupedData[row.Assessment]) {
+            groupedData[row.Assessment] = {};
         }
-        groupedData[row.Subj][row.Assessment] = row.Rank;
+        groupedData[row.Assessment][row.Subj] = row.Rank;
     });
     
-    // Prepare data for Chart.js
-    const subjects = Object.keys(groupedData);
-    const assessments = [...new Set(studentData.map(row => row.Assessment))];
-    
-    const datasets = assessments.map((assessment, index) => {
+    // Create a dataset for each subject (instead of assessment)
+    const datasets = subjects.map((subject, index) => {
         // Generate a color based on index
         const hue = (index * 137) % 360;
         const color = `hsla(${hue}, 70%, 50%, 0.7)`;
         
         return {
-            label: assessment,
-            data: subjects.map(subj => groupedData[subj][assessment] || null),
+            label: subject, // Subject is now the legend label
+            data: assessments.map(assessment => groupedData[assessment][subject] || null),
             borderColor: color,
             backgroundColor: color,
             tension: 0.1
@@ -158,26 +159,26 @@ function displayStudentChart(data, studentName) {
         rankChart.destroy();
     }
     
-    // Create new chart
+    // Create new chart with assessments as x-axis
     rankChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: subjects,
+            labels: assessments, // Changed from subjects to assessments for x-axis
             datasets: datasets
         },
         options: {
             scales: {
                 y: {
-                    reverse: false, // Change to false or remove this line
+                    reverse: false,
                     title: {
                         display: true,
-                        text: 'Rank (higher is better)' // Update this text
+                        text: 'Rank (higher is better)'
                     }
                 },
                 x: {
                     title: {
                         display: true,
-                        text: 'Subject'
+                        text: 'Assessment' // Changed from 'Subject' to 'Assessment'
                     }
                 }
             },
@@ -191,6 +192,12 @@ function displayStudentChart(data, studentName) {
                         label: function(context) {
                             return `${context.dataset.label}: Rank ${context.raw}`;
                         }
+                    }
+                },
+                legend: {
+                    title: {
+                        display: true,
+                        text: 'Subject' // Add legend title for subjects
                     }
                 }
             }
