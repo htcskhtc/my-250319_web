@@ -1,4 +1,5 @@
 let rankChart = null; // For storing chart instance
+let activityData = null; // For storing activity/awards data
 
 document.addEventListener('DOMContentLoaded', function() {
     // Register Chart.js plugins if they exist
@@ -26,6 +27,15 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data => {
             const workbook = XLSX.read(data, { type: 'array' });
+            
+            // Store the InternalAct sheet data for later use
+            if (workbook.SheetNames.includes('InternalAct')) {
+                const actSheet = workbook.Sheets['InternalAct'];
+                activityData = XLSX.utils.sheet_to_json(actSheet);
+                console.log("Activity data loaded:", activityData.length, "records");
+            } else {
+                console.warn("InternalAct sheet not found in the Excel file");
+            }
             
             // Get all sheet names
             const sheetSelector = document.getElementById('sheetSelector');
@@ -409,8 +419,14 @@ function displayStudentChart(data, studentName) {
     // Create RankDiff table
     createRankDiffTable(studentData, subjects, assessments);
     
+    // Add this line to display student awards
+    displayStudentAwards(studentName);
+    
     // Initialize the Assessment Bar Chart functionality
     initializeAssessmentBarChart(studentData, groupedData, subjects);
+    
+    // Display student awards
+    displayStudentAwards(studentName);
 }
 
 // Add new function to create the RankDiff table
@@ -893,4 +909,97 @@ function initializeAssessmentBarChart(studentData, groupedData, subjects) {
             </div>
         `;
     }
+}
+
+// Add this new function to display student awards
+function displayStudentAwards(studentName) {
+    console.log("Displaying awards for student:", studentName);
+    
+    // Create a container for the awards table if it doesn't exist
+    let awardsContainer = document.getElementById('studentAwardsContainer');
+    if (!awardsContainer) {
+        awardsContainer = document.createElement('div');
+        awardsContainer.id = 'studentAwardsContainer';
+        awardsContainer.style.marginTop = '30px';
+        document.getElementById('rankDiffTable').after(awardsContainer);
+    }
+    
+    // Check if we have activity data
+    if (!activityData) {
+        awardsContainer.innerHTML = '<p>Award data is not available</p>';
+        return;
+    }
+    
+    // Filter awards for the selected student
+    const studentAwards = activityData.filter(record => record.Name === studentName);
+    
+    // Generate the awards table
+    let tableHTML = `
+        <h3>Awards and Achievements for ${studentName}</h3>
+        <style>
+            .awards-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            }
+            
+            .awards-table th, .awards-table td {
+                padding: 10px;
+                text-align: left;
+                border: 1px solid #e0e0e0;
+            }
+            
+            .awards-table th {
+                background-color: #f5f5f5;
+                font-weight: bold;
+            }
+            
+            .awards-table tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+            
+            .no-awards {
+                padding: 15px;
+                background-color: #f9f9f9;
+                border-left: 4px solid #607D8B;
+                margin: 10px 0;
+            }
+        </style>
+    `;
+    
+    if (studentAwards.length > 0) {
+        tableHTML += `
+            <table class="awards-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Award</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        studentAwards.forEach((award, index) => {
+            tableHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${award.Act_Award}</td>
+                </tr>
+            `;
+        });
+        
+        tableHTML += `
+                </tbody>
+            </table>
+        `;
+    } else {
+        tableHTML += `
+            <div class="no-awards">
+                <p>No awards recorded for this student.</p>
+            </div>
+        `;
+    }
+    
+    awardsContainer.innerHTML = tableHTML;
 }
