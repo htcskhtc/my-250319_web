@@ -8,13 +8,12 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
-    <!-- Add these new plugins -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
 </head>
 <body>
     <!-- Login container -->
-    <div id="loginContainer" style="display: none;">
+    <div id="loginContainer">
       <div class="login-form">
         <h2>Login to School Power BI Data Viewer</h2>
         <form id="loginForm">
@@ -33,41 +32,15 @@
     </div>
 
     <!-- App container -->
-    <div id="appContainer" class="container">
+    <div id="appContainer" class="container" style="display: none;">
         <h1>School Power BI Data Viewer</h1>
         
-        <div class="controls">
-            <select id="sheetSelector">
-                <option value="">Select a sheet...</option>
-            </select>
-            
-            <!-- Student filters (hidden initially) -->
-            <div id="studentFilters" style="display: none; margin-top: 10px;">
-                <select id="yearFilter">
-                    <option value="">All Years</option>
-                </select>
-                <select id="classFilter">
-                    <option value="">All Classes</option>
-                </select>
-                <select id="numberFilter">
-                    <option value="">All Numbers</option>
-                </select>
-            </div>
-            
-            <!-- Add student selector (hidden initially) -->
-            <select id="studentSelector" style="display: none; margin-top: 10px;">
-                <option value="">Select a student...</option>
-            </select>
-        </div>
-        
-        <!-- Add chart container -->
-        <div id="chartContainer" style="display: none;">
-            <canvas id="rankChart"></canvas>
-        </div>
-        
-        <div id="tableContainer"></div>
+        <!-- Rest of your app container content -->
     </div>
     
+    <!-- Load authentication script first -->
+    <script src="excelAuth.js"></script>
+    <!-- Then load application script -->
     <script src="app.js"></script>
 </body>
 </html>

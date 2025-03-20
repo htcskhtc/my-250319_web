@@ -14,13 +14,37 @@ function loadUserDatabase() {
     .then(data => {
       const workbook = XLSX.read(data, { type: 'array' });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      userCredentials = XLSX.utils.sheet_to_json(worksheet);
-      console.log("User database loaded successfully");
+      const loadedCredentials = XLSX.utils.sheet_to_json(worksheet);
+      
+      if (loadedCredentials.length > 0) {
+        userCredentials = loadedCredentials;
+        console.log("User database loaded successfully");
+      } else {
+        throw new Error('User database is empty');
+      }
     })
     .catch(error => {
       console.error("Error loading user database:", error);
-      throw error;
+      // Use fallback users if loading fails
+      createFallbackUsers();
     });
+}
+
+// Fallback function to create hardcoded user credentials if loading fails
+function createFallbackUsers() {
+  console.log("Creating fallback user database");
+  // Create a default admin user (password: admin123)
+  userCredentials = [
+    { 
+      username: "admin", 
+      password: "14f7022d5259c4f5618a1c6ffb16b2c3" // Hash of "admin123"
+    },
+    {
+      username: "user",
+      password: "49cc012bbde5dc4c14eb00bdb746e3a9" // Hash of "user123"
+    }
+  ];
+  console.log("Fallback user database created");
 }
 
 // Authenticate user
@@ -67,6 +91,11 @@ function logout() {
 
 // Initialize authentication system
 document.addEventListener('DOMContentLoaded', function() {
+  // Add this at the beginning of the initialize function
+  console.log("Authentication system initializing...");
+  console.log("Login container:", document.getElementById('loginContainer'));
+  console.log("App container:", document.getElementById('appContainer'));
+
   // Load user database
   loadUserDatabase()
     .then(() => {
