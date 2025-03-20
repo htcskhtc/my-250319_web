@@ -4,6 +4,7 @@ A web application that displays and visualizes data from the SchoolPowerBIData.x
 
 ## Features
 
+- User authentication system with Excel-based credential storage
 - View different sheets in the Excel file in a responsive table format
 - Advanced visualization for the "InternalExam" sheet data
 - Filter students by year, class, and number for easy student selection
@@ -19,12 +20,23 @@ A web application that displays and visualizes data from the SchoolPowerBIData.x
 ## How to Use
 
 1. Open the index.html file in a web browser
-2. Select a sheet from the dropdown to view its data
-3. For the "InternalExam" sheet:
+2. Log in using the credentials:
+   - Username: `admin` | Password: `admin123`
+   - Username: `user` | Password: `user123`
+   - Username: `jackchui` | Password: `jackchui123456`
+3. Select a sheet from the dropdown to view its data
+4. For the "InternalExam" sheet:
    - Use the filters to narrow down student selection
    - Select a specific student to view their rank progression chart
    - Use the assessment selector to see subject-specific performance in bar chart format
    - Review the rank difference table to identify performance trends across assessments
+
+## Authentication System
+
+- Uses Excel-based user database (userDB.xlsx)
+- Fallback to hardcoded credentials if Excel file is not available
+- Session-based authentication using browser sessionStorage
+- Option to download a test Excel credentials file for demonstration
 
 ## Visualization Features
 
@@ -43,3 +55,4 @@ A web application that displays and visualizes data from the SchoolPowerBIData.x
 - Chart.js plugins:
   - Data Labels plugin for enhanced data point labeling
   - Annotation plugin for chart annotations
+- Browser sessionStorage for maintaining authentication state
