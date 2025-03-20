@@ -27,6 +27,10 @@ function loadUserDatabase() {
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
         
+        console.log("Raw worksheet data:", worksheet);
+        const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
+        console.log("Sheet range:", range);
+        
         // Convert the worksheet to JSON
         const users = XLSX.utils.sheet_to_json(worksheet);
         console.log(`Found ${users.length} users in the Excel file`);
@@ -53,6 +57,8 @@ function loadUserDatabase() {
     })
     .catch(error => {
       console.error("Error loading user database:", error.message);
+      console.error("Full error:", error);
+      console.log("Error stack:", error.stack);
       console.log("Falling back to default users");
       createFallbackUsers();
       return false;
@@ -68,6 +74,38 @@ function createFallbackUsers() {
     { username: "jackchui", password: "jackchui123456" } // Add the user that was previously trying to log in
   ];
   console.log("Fallback user database created with users:", userCredentials.map(u => u.username).join(", "));
+}
+
+// Add after createFallbackUsers function
+function createTestExcelFile() {
+  // Create a new workbook and worksheet
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet([
+    { username: "admin", password: "admin123" },
+    { username: "user", password: "user123" },
+    { username: "jackchui", password: "jackchui123456" }
+  ]);
+  
+  // Add worksheet to workbook
+  XLSX.utils.book_append_sheet(wb, ws, "Users");
+  
+  // Generate Excel file
+  const excelData = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  
+  // Create Blob and download
+  const blob = new Blob([excelData], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const url = URL.createObjectURL(blob);
+  
+  console.log("Test Excel file created, download URL:", url);
+  
+  // Create download link
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'userDB.xlsx';
+  a.textContent = 'Download Test userDB.xlsx';
+  a.style.display = 'block';
+  a.style.margin = '10px auto';
+  document.getElementById('loginContainer').appendChild(a);
 }
 
 // Simple authentication function
@@ -144,4 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
   } else {
     console.error("Login form not found in the document!");
   }
+
+  // Call this function after DOM is loaded
+  createTestExcelFile();
 });
