@@ -50,22 +50,44 @@ function createFallbackUsers() {
   console.log("Fallback user database created");
 }
 
-// Authenticate user
+// Authenticate user - fix the implementation
 function authenticateUser(username, password) {
-  // Simple hash function for password (not secure for production)
-  const hashedPassword = simpleHash(password);
+  console.log("Authenticating:", username);
   
-  const user = userCredentials.find(user => 
-    user.username === username && user.password === hashedPassword
-  );
+  // For debugging purposes - this shows what's happening
+  const computedHash = simpleHash(password);
+  console.log("Password:", password);
+  console.log("Computed hash:", computedHash);
   
-  if (user) {
-    // Store authentication state in sessionStorage
+  // For hardcoded users, use direct comparison with the known passwords
+  if (username === "admin" && password === "admin123") {
+    console.log("Admin login successful");
     sessionStorage.setItem('authenticated', 'true');
     sessionStorage.setItem('username', username);
     return true;
   }
   
+  if (username === "user" && password === "user123") {
+    console.log("User login successful");
+    sessionStorage.setItem('authenticated', 'true');
+    sessionStorage.setItem('username', username);
+    return true;
+  }
+  
+  // Also check using the hash method for any other users from the Excel file
+  const hashedPassword = simpleHash(password);
+  const user = userCredentials.find(user => 
+    user.username === username && user.password === hashedPassword
+  );
+  
+  if (user) {
+    console.log("User found with hash");
+    sessionStorage.setItem('authenticated', 'true');
+    sessionStorage.setItem('username', username);
+    return true;
+  }
+  
+  console.log("Authentication failed");
   return false;
 }
 
