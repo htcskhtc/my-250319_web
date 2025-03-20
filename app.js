@@ -974,6 +974,7 @@ function displayStudentAwards(studentName) {
                 <thead>
                     <tr>
                         <th>#</th>
+                        <th>Year</th>
                         <th>Award</th>
                     </tr>
                 </thead>
@@ -981,9 +982,13 @@ function displayStudentAwards(studentName) {
         `;
         
         studentAwards.forEach((award, index) => {
+            // Get the year value, display empty string if not available
+            const yearValue = award.Year !== undefined ? award.Year : '';
+            
             tableHTML += `
                 <tr>
                     <td>${index + 1}</td>
+                    <td>${yearValue}</td>
                     <td>${award.Act_Award}</td>
                 </tr>
             `;
