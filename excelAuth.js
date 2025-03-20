@@ -2,6 +2,9 @@
 
 let userCredentials = [];
 
+// Add this line at the beginning of the file, after the userCredentials declaration
+createFallbackUsers(); // Ensure fallback users are always created
+
 // Load user credentials from Excel file
 function loadUserDatabase() {
   return fetch('userDB.xlsx')
@@ -95,6 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log("Authentication system initializing...");
   console.log("Login container:", document.getElementById('loginContainer'));
   console.log("App container:", document.getElementById('appContainer'));
+  console.log("Login form:", document.getElementById('loginForm'));
 
   // Load user database
   loadUserDatabase()

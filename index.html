@@ -35,7 +35,33 @@
     <div id="appContainer" class="container" style="display: none;">
         <h1>School Power BI Data Viewer</h1>
         
-        <!-- Rest of your app container content -->
+        <!-- Add this missing content -->
+        <div class="controls">
+            <label for="sheetSelector">Select a sheet:</label>
+            <select id="sheetSelector">
+                <option value="">Choose a sheet...</option>
+            </select>
+        </div>
+        
+        <!-- Student filters for InternalExam sheet -->
+        <div id="studentFilters" style="display: none;">
+            <select id="yearFilter">
+                <option value="">All Years</option>
+            </select>
+            <select id="classFilter">
+                <option value="">All Classes</option>
+            </select>
+            <select id="numberFilter">
+                <option value="">All Numbers</option>
+            </select>
+        </div>
+        
+        <select id="studentSelector" style="display: none;">
+            <option value="">Select a student...</option>
+        </select>
+        
+        <div id="chartContainer" style="display: none;"></div>
+        <div id="tableContainer"></div>
     </div>
     
     <!-- Load authentication script first -->
