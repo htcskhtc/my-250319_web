@@ -1160,7 +1160,7 @@ function displayPreS1AndPrimarySchool(studentName, workbook) {
                 <div class="pre-s1-subject">
                     <h4>${subject}</h4>
                     <div class="pre-s1-rank">${record.Rank}</div>
-                    <div class="pre-s1-note">Rank (lower is better)</div>
+                    <div class="pre-s1-note">Class Rank (1st is best)</div>
                 </div>
             `;
         });
