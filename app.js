@@ -427,6 +427,9 @@ function displayStudentChart(data, studentName) {
     
     // Display student awards
     displayStudentAwards(studentName);
+    
+    // Display Pre-S1 and primary school data
+    displayPreS1AndPrimarySchool(studentName, workbook);
 }
 
 // Add new function to create the RankDiff table
@@ -1007,4 +1010,169 @@ function displayStudentAwards(studentName) {
     }
     
     awardsContainer.innerHTML = tableHTML;
+}
+
+// Add this new function to display Pre-S1 data and primary school
+function displayPreS1AndPrimarySchool(studentName, workbook) {
+    console.log("Displaying Pre-S1 and primary school data for:", studentName);
+    
+    // Create a container for the Pre-S1 and primary school info
+    let preS1Container = document.getElementById('preS1Container');
+    if (!preS1Container) {
+        preS1Container = document.createElement('div');
+        preS1Container.id = 'preS1Container';
+        preS1Container.style.marginTop = '30px';
+        preS1Container.style.marginBottom = '30px';
+        
+        // Insert between rank diff table and awards container
+        const rankDiffTable = document.getElementById('rankDiffTable');
+        if (rankDiffTable) {
+            rankDiffTable.after(preS1Container);
+        }
+    }
+    
+    // Check if we have the necessary sheets in the workbook
+    if (!workbook || !workbook.SheetNames.includes('Pre_S1') || !workbook.SheetNames.includes('IntPriSch')) {
+        preS1Container.innerHTML = '<p>Pre-S1 or Primary School data is not available</p>';
+        return;
+    }
+    
+    // Extract data from Pre_S1 sheet
+    const preS1Sheet = workbook.Sheets['Pre_S1'];
+    const preS1Data = XLSX.utils.sheet_to_json(preS1Sheet);
+    
+    // Filter for the selected student
+    const studentPreS1Data = preS1Data.filter(record => record.Name === studentName);
+    
+    // Extract data from IntPriSch sheet
+    const priSchSheet = workbook.Sheets['IntPriSch'];
+    const priSchData = XLSX.utils.sheet_to_json(priSchSheet);
+    
+    // Find the student's primary school
+    const studentPriSchInfo = priSchData.find(record => record.Name === studentName);
+    const primarySchool = studentPriSchInfo ? studentPriSchInfo.PriSch : 'Not available';
+    
+    // Generate the HTML content
+    let contentHTML = `
+        <style>
+            .pre-s1-container {
+                background-color: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .pre-s1-header {
+                color: #333;
+                border-bottom: 2px solid #4CAF50;
+                padding-bottom: 10px;
+                margin-top: 0;
+            }
+            
+            .pre-s1-school {
+                background-color: #f5f7fa;
+                padding: 15px;
+                border-radius: 6px;
+                margin-bottom: 15px;
+                border-left: 4px solid #2196F3;
+            }
+            
+            .pre-s1-school h4 {
+                margin-top: 0;
+                color: #2196F3;
+            }
+            
+            .pre-s1-summary {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-top: 15px;
+            }
+            
+            .pre-s1-subject {
+                flex: 1;
+                min-width: 150px;
+                background-color: #f9f9f9;
+                padding: 15px;
+                border-radius: 6px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+            
+            .pre-s1-subject h4 {
+                margin-top: 0;
+                color: #555;
+                font-size: 16px;
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 5px;
+            }
+            
+            .pre-s1-rank {
+                font-size: 28px;
+                font-weight: bold;
+                color: #4CAF50;
+                text-align: center;
+                margin: 10px 0;
+            }
+            
+            .pre-s1-note {
+                font-size: 12px;
+                color: #777;
+                text-align: center;
+            }
+            
+            .no-data {
+                color: #999;
+                font-style: italic;
+                text-align: center;
+                padding: 20px;
+            }
+        </style>
+        
+        <div class="pre-s1-container">
+            <h3 class="pre-s1-header">Pre-Secondary 1 Academic Profile</h3>
+            
+            <div class="pre-s1-school">
+                <h4>Primary School Background</h4>
+                <p><strong>School:</strong> ${primarySchool}</p>
+            </div>
+    `;
+    
+    if (studentPreS1Data.length > 0) {
+        contentHTML += `
+            <h4>Pre-S1 Assessment Performance</h4>
+            <div class="pre-s1-summary">
+        `;
+        
+        // Group by assessment subject
+        const subjectGroups = {};
+        studentPreS1Data.forEach(record => {
+            if (!subjectGroups[record.Assessment]) {
+                subjectGroups[record.Assessment] = record;
+            }
+        });
+        
+        // Display each subject
+        Object.keys(subjectGroups).forEach(subject => {
+            const record = subjectGroups[subject];
+            contentHTML += `
+                <div class="pre-s1-subject">
+                    <h4>${subject}</h4>
+                    <div class="pre-s1-rank">${record.Rank}</div>
+                    <div class="pre-s1-note">Rank (lower is better)</div>
+                </div>
+            `;
+        });
+        
+        contentHTML += `
+            </div>
+        `;
+    } else {
+        contentHTML += `
+            <div class="no-data">No Pre-S1 assessment data available for this student</div>
+        `;
+    }
+    
+    contentHTML += `</div>`;
+    preS1Container.innerHTML = contentHTML;
 }
