@@ -372,7 +372,17 @@ function displayStudentChart(data, studentName, workbook) {
                     text: `Rank Progression for ${studentName}`
                 },
                 tooltip: {
-                    enabled: false // Disable tooltips
+                    enabled: true, // Enable tooltips
+                    mode: 'nearest',
+                    intersect: true,
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            return tooltipItems[0].dataset.label + ' - ' + tooltipItems[0].label;
+                        },
+                        label: function(context) {
+                            return 'Rank: ' + context.parsed.y;
+                        }
+                    }
                 },
                 legend: {
                     title: {
@@ -385,9 +395,10 @@ function displayStudentChart(data, studentName, workbook) {
                 }
             },
             interaction: {
-                mode: 'none' // Disable all interactions
+                mode: 'nearest', // Enable interactions for nearest point
+                intersect: true
             },
-            events: [] // Disable all event listeners (hover, clicks)
+            events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'] // Enable necessary events
         }
     });
     
