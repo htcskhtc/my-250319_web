@@ -1,5 +1,6 @@
 let rankChart = null; // For storing chart instance
 let activityData = null; // For storing activity/awards data
+let workbook = null; // Global workbook variable to use across functions
 
 document.addEventListener('DOMContentLoaded', function() {
     // Register Chart.js plugins if they exist
@@ -26,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.arrayBuffer();
         })
         .then(data => {
-            const workbook = XLSX.read(data, { type: 'array' });
+            workbook = XLSX.read(data, { type: 'array' });
             
             // Store the InternalAct sheet data for later use
             if (workbook.SheetNames.includes('InternalAct')) {
@@ -234,14 +235,14 @@ function prepareStudentSelector(workbook, sheetName) {
     const studentSelector = document.getElementById('studentSelector');
     studentSelector.addEventListener('change', function() {
         if (this.value) {
-            displayStudentChart(jsonData, this.value);
+            displayStudentChart(jsonData, this.value, workbook);
         } else {
             document.getElementById('chartContainer').style.display = 'none';
         }
     });
 }
 
-function displayStudentChart(data, studentName) {
+function displayStudentChart(data, studentName, workbook) {
     console.log("displayStudentChart called", studentName);
     // Filter data for selected student
     const studentData = data.filter(row => row.Name === studentName);
