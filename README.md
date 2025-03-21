@@ -2,25 +2,56 @@
 
 A web application that displays and visualizes data from the SchoolPowerBIData.xlsx Excel file, specializing in student performance analytics.
 
+## Overview
+
+This application provides educators and administrators with an interactive tool to analyze student performance data across multiple assessments and subjects. The system includes user authentication, data visualization, and performance trend analysis.
+
+## System Requirements
+
+- Modern web browser with JavaScript enabled
+- Local or remote web server for hosting the application files
+- Excel data file (SchoolPowerBIData.xlsx) with required sheets and structure
+
+## Installation
+
+1. Clone or download this repository
+2. Place all files on a web server or use a local server
+3. Ensure SchoolPowerBIData.xlsx and userDB.xlsx are in the root directory
+4. Open index.html through your web server
+
 ## Features
 
-- User authentication system with Excel-based credential storage
-- View different sheets in the Excel file in a responsive table format
-- Advanced visualization for the "InternalExam" sheet data
-- Filter students by year, class, and number for easy student selection
-- Interactive chart visualizations:
-  - Rank progression chart showing student performance across different assessments
+### Authentication System
+- Excel-based user database (userDB.xlsx)
+- Fallback to hardcoded credentials if Excel file is not available
+- Session-based authentication using browser sessionStorage
+- Downloadable test Excel credentials file for demonstration
+
+### Data Visualization
+- **Data Tables**: View raw data from different Excel sheets
+- **Student Filtering**: Filter students by year, class, and number
+- **Interactive Charts**:
+  - Rank progression chart showing performance across assessments
   - Subject-specific bar chart for individual assessment analysis
-  - Detailed rank difference table with color-coded performance changes
-- Data analysis features:
-  - Performance change tracking with color-coded indicators
-  - Summary statistics highlighting overall improvements and declines
-  - Best and most challenging subject identification
+  - Rank difference table with color-coded performance changes
+  
+### Performance Analysis
+- Performance change tracking with color-coded indicators
+- Summary statistics for improvements and declines
+- Best and most challenging subject identification
+- Student awards and achievements display
+
+## Excel Data Structure
+
+The application expects the following sheets in the Excel file:
+- **InternalExam**: Contains student assessment data with columns for Name, Subj, Assessment, and Rank
+- **InternalAct**: Contains student activity/awards data
+- Additional sheets can be included and will be displayed as tables
 
 ## How to Use
 
 1. Open the index.html file in a web browser
-2. Log in using the credentials:
+2. Log in using one of these credentials:
    - Username: `admin` | Password: `admin123`
    - Username: `user` | Password: `user123`
    - Username: `jackchui` | Password: `jackchui123456`
@@ -30,13 +61,6 @@ A web application that displays and visualizes data from the SchoolPowerBIData.x
    - Select a specific student to view their rank progression chart
    - Use the assessment selector to see subject-specific performance in bar chart format
    - Review the rank difference table to identify performance trends across assessments
-
-## Authentication System
-
-- Uses Excel-based user database (userDB.xlsx)
-- Fallback to hardcoded credentials if Excel file is not available
-- Session-based authentication using browser sessionStorage
-- Option to download a test Excel credentials file for demonstration
 
 ## Visualization Features
 
@@ -49,10 +73,21 @@ A web application that displays and visualizes data from the SchoolPowerBIData.x
 
 ## Technologies Used
 
-- HTML, CSS, and JavaScript
-- SheetJS library for Excel file parsing
-- Chart.js for data visualization
+- HTML5, CSS3, and JavaScript (ES6+)
+- [SheetJS](https://sheetjs.com/) library for Excel file parsing
+- [Chart.js](https://www.chartjs.org/) for data visualization
 - Chart.js plugins:
   - Data Labels plugin for enhanced data point labeling
   - Annotation plugin for chart annotations
 - Browser sessionStorage for maintaining authentication state
+
+## Future Development
+
+- Export visualizations as images or PDF
+- Add more advanced filtering options
+- Implement comparative analysis between students
+- Add admin dashboard for managing user accounts
+
+## License
+
+This project is provided for educational purposes only.
