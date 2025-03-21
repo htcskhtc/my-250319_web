@@ -76,7 +76,8 @@ function createFallbackUsers() {
   console.log("Fallback user database created with users:", userCredentials.map(u => u.username).join(", "));
 }
 
-// Add after createFallbackUsers function
+// This function is kept for reference but we no longer call it to prevent 
+// the download link from appearing on the login page
 function createTestExcelFile() {
   // Create a new workbook and worksheet
   const wb = XLSX.utils.book_new();
@@ -98,14 +99,8 @@ function createTestExcelFile() {
   
   console.log("Test Excel file created, download URL:", url);
   
-  // Create download link
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'userDB.xlsx';
-  a.textContent = 'Download Test userDB.xlsx';
-  a.style.display = 'block';
-  a.style.margin = '10px auto';
-  document.getElementById('loginContainer').appendChild(a);
+  // REMOVED: No longer adding download link to loginContainer
+  // Code that was here previously created and displayed a download link
 }
 
 // Simple authentication function
@@ -183,6 +178,6 @@ document.addEventListener('DOMContentLoaded', function() {
     console.error("Login form not found in the document!");
   }
 
-  // Call this function after DOM is loaded
-  createTestExcelFile();
+  // REMOVED: Call to createTestExcelFile() that was here previously
+  // This prevents the download link from being created and displayed on the login page
 });
