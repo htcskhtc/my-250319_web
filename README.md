@@ -25,7 +25,6 @@ This application provides educators and administrators with an interactive tool 
 - Excel-based user database (userDB.xlsx)
 - Fallback to hardcoded credentials if Excel file is not available
 - Session-based authentication using browser sessionStorage
-- Downloadable test Excel credentials file for demonstration
 
 ### Data Visualization
 - **Data Tables**: View raw data from different Excel sheets
@@ -40,12 +39,15 @@ This application provides educators and administrators with an interactive tool 
 - Summary statistics for improvements and declines
 - Best and most challenging subject identification
 - Student awards and achievements display
+- Pre-Secondary 1 data and primary school information display
 
 ## Excel Data Structure
 
 The application expects the following sheets in the Excel file:
-- **InternalExam**: Contains student assessment data with columns for Name, Subj, Assessment, and Rank
-- **InternalAct**: Contains student activity/awards data
+- **InternalExam**: Contains student assessment data with columns for Name, Subj, Assessment, Rank, and RankDiff
+- **InternalAct**: Contains student activity/awards data with columns for Name, Year, and Act_Award
+- **Pre_S1**: Contains pre-secondary school assessment data with columns for Name, Assessment, and Rank
+- **IntPriSch**: Contains primary school information with columns for Name and PriSch
 - Additional sheets can be included and will be displayed as tables
 
 ## How to Use
@@ -70,6 +72,7 @@ The application expects the following sheets in the Excel file:
   - Green shades: Improvements in rank
   - Red shades: Declines in rank
   - Intensity based on the magnitude of change
+- **Pre-S1 Profile**: Displays student's pre-secondary assessment performance and primary school background
 
 ## Technologies Used
 
@@ -80,6 +83,13 @@ The application expects the following sheets in the Excel file:
   - Data Labels plugin for enhanced data point labeling
   - Annotation plugin for chart annotations
 - Browser sessionStorage for maintaining authentication state
+
+## Troubleshooting
+
+- If the Excel files fail to load, check that they're properly formatted with the required columns
+- Make sure SchoolPowerBIData.xlsx and userDB.xlsx are in the same directory as the HTML file
+- If authentication fails, the application will fall back to default credentials
+- For visualization issues, check browser console for error messages
 
 ## Future Development
 
